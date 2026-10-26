@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Автомобильный Аукцион</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1000px; margin: 40px auto; background-color: #eef2f5; }
+        .car-card { background: white; padding: 20px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .price { font-size: 1.2em; color: #2e7d32; font-weight: bold; }
+        .status { font-size: 0.8em; padding: 4px 8px; border-radius: 4px; background: #ffc107; color: #000; }
+        .status.sold { background: #f44336; color: white; }
+        input, button { padding: 8px; margin-top: 5px; border-radius: 4px; border: 1px solid #ccc; }
+        button { background: #1976d2; color: white; border: none; cursor: pointer; }
+        button:hover { background: #115293; }
+        .form-row { display: flex; gap: 10px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h1>🚗 Аукцион автомобилей</h1>
+    
+    <!-- Форма добавления авто -->
+    <div class="car-card" style="background: #e3f2fd;">
+        <h3>Добавить автомобиль на аукцион</h3>
+        <form action="/add_car" method="POST">
+            <div class="form-row">
+                <input type="text" name="brand" placeholder="Марка" required>
+                <input type="text" name="model" placeholder="Модель" required>
+                <input type="number" name="year" placeholder="Год" required>
+                <input type="number" name="price" placeholder="Начальная цена" required>
+                <button type="submit">Добавить</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Список авто -->
+    {% for car in cars %}
+        <div class="car-card">
+            <h2>{{ car.brand }} {{ car.model }} ({{ car.year }}) <span class="status {% if car.status == 'Продан' %}sold{% endif %}">{{ car.status }}</span></h2>
+            <p>Начальная цена: {{ car.starting_price }} ₽</p>
+            <p class="price">Текущая ставка: {{ car.current_price }} ₽</p>
+            
+            {% if car.status == 'Активен' %}
+                <form action="/bid/{{ car.id }}" method="POST">
+                    <div class="form-row">
+                        <input type="text" name="bidder_name" placeholder="Ваше имя" required>
+                        <input type="number" name="amount" placeholder="Сумма (больше {{ car.current_price }})" required>
+                        <button type="submit">Сделать ставку</button>
+                    </div>
+                </form>
+                <a href="/close_auction/{{ car.id }}" style="display:inline-block; margin-top:10px; color:red;">Завершить аукцион</a>
+            {% endif %}
+        </div>
+    {% else %}
+        <p>На аукционе пока нет автомобилей.</p>
+    {% endfor %}
+</body>
+</html>
